@@ -1,0 +1,24 @@
+Adding in some notes here in the process as we move things along
+
+Things are two-fold process with using images of test touches to approximate their test touchees to reduce human input/labor.
+
+I. The first is getting a good digital microscope that we can talk to via python so that we can not only capture an image using the `opencv` python package, but also query some properties that might be super helpful for calibration pixel to mm length 
+II. The second is to take the images and then do some contrasting and edge detection and build a robust enough python module that will recognize the lines in the images for test touches and measure them correctly. 
+
+
+What we've done thus far
+1. bought the digital microscope and purchased the correct active signal cable extender 
+2. built Python modules to query key features of the digital microscope, including: magnification (AMR), field of view (FOV), image resolution, LED and FLC status, EDOF capability, and other device configuration flags exposed by the DNX64 SDK.
+3. build the python modules that try to do the detecting/measuring of lines of test touches made. This was working really well for images made by the digital microscope when NOT installed in the MML and at a magnification of about 80x
+4. Now that we've installed the camera on the ZA axis of Saw2, i've calibrated the camera to work well at 32.6x to get a good look at test touches on a test wafer mounted on a mounting plate. Need to write code that will detect these cuts at that magnification. CAVEAT: there is a concern that this way may not work on the 80x images so we should try to see how we can get the 32.6x. 
+
+
+Future things to think about:
+1. calibrating the location of the camera against one of the spindles that does a test touch so that i have something to work with with creating the correct coordinates for the camera to go to 
+2. we can worry about this when we're actually getting ready to turn the flood cooling on, do a new test touch, move the camera over and take a picture and measure it. 
+3. we also need to be able to protect the housing from any water that might seep in and ruin any connections. there is a balloon idea
+4. the solenoid valve doesn't seem to be turning the compressed air on and off for ZA axis so we need to fix that
+5. also purchased a pneumatic actuator that would protect the face of the housing so that it doesn't get dirty from all the water (and then use the compressed air from the solenoid valve to blow the water away from the test touch wafer)
+6. we also need to make sure that the top of the housing where the microusb cable comes out is properly protected from the flood cooling spray from the spindles doing the cuts and test touches. 
+7. there are also some programming suggestions from Rahul which, based off the dictionary of values that are output from the x and y coordinates of the lines in the image, we need to make sure that we're only looking at the last cut made to measure it which can be by simply setting the condition that we look at the line with the largest y value that we'd report
+8. we then need to create some kind of system that reports us the value of the test touch measured with the picture if we'd like and asks us if we want to move forward by sending a text or email back with yes or no to proceed
