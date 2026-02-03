@@ -2,9 +2,14 @@ import argparse
 import importlib
 import time
 import math
+import os
 import cv2
 
+
+DNX64_DIR = r"C:\Program Files\DNX64"
+os.environ["PATH"] = DNX64_DIR + ";" + os.environ.get("PATH", "")
 DNX64_PATH = r"C:\Program Files\DNX64\DNX64.dll"
+
 DEVICE_INDEX = 0     # SDK device index (usually 0)
 CAM_INDEX = 0        # OpenCV camera index (I found 0 on my Windows VM)
 
