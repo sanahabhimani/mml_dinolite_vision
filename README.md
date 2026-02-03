@@ -7,3 +7,6 @@ Image-based analysis tools for Dino-Lite microscope data used in MML spindle tes
 `capture_image.py` will take the photo when we're ready. This is useful for when we control the Aerotech automation1 hardware to go to a specific set of coordinates, and once we know we're there, we then have the Dinolite capture the image. 
 
 `detect_test_touches.py` will have the host of functions we need to call to analyze the image to output the measured test touch value
+
+Note: `dinolite.py` and `capture_image.py` only work when they are placed in the same directory as the DNX64 Python API, since the API relies on relative paths for loading the DLL.
+
