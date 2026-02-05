@@ -22,3 +22,6 @@ Future things to think about:
 6. we also need to make sure that the top of the housing where the microusb cable comes out is properly protected from the flood cooling spray from the spindles doing the cuts and test touches. 
 7. there are also some programming suggestions from Rahul which, based off the dictionary of values that are output from the x and y coordinates of the lines in the image, we need to make sure that we're only looking at the last cut made to measure it which can be by simply setting the condition that we look at the line with the largest y value that we'd report
 8. we then need to create some kind of system that reports us the value of the test touch measured with the picture if we'd like and asks us if we want to move forward by sending a text or email back with yes or no to proceed
+
+Feb 5, 2026:
+1. i think we need to calibrate at higher magnification as 32.6 magnification doesn't seem to be giving me the level of clarity i'm looking for in terms of doing GOOD edge detection of the lines. Previously, a magnification of 88x was looking pretty good. But that was in an instrument setup outside of the aerotech hardware
