@@ -4,6 +4,34 @@ import random
 import os
 import matplotlib.pyplot as plt
 
+
+def get_image_paths(directory):
+    """
+    Retrieves all image file paths from a specified directory.
+
+    Parameters:
+    ----------
+    directory : str
+        Path to the directory containing image files.
+
+    Returns:
+    -------
+    list of str
+        List of file paths for all images in the directory with supported extensions.
+    """
+    # Define supported image extensions
+    image_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.tiff')
+
+    # Collect all image paths with the correct extensions
+    image_paths = [
+        os.path.join(directory, f)
+        for f in os.listdir(directory)
+        if f.lower().endswith(image_extensions)
+    ]
+
+    return sorted(image_paths)
+
+
 def preprocess_image_blackhat(
     image_path,
     clip_limit=2.0,
