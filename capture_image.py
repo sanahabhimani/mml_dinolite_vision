@@ -15,8 +15,8 @@ with DinoLiteSession(
 
     print("Previewing for alignment... (Ctrl+C to stop preview loop)")
     try:
-        for _ in range(300):  # ~10 seconds if delay_ms=30 below
-            s.show_preview(delay_ms=30)
+        for _ in range(100):  # 4s delay with 100/25
+            s.show_preview(delay_ms=25)
     except KeyboardInterrupt:
         pass
 
