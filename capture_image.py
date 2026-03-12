@@ -7,18 +7,18 @@ with DinoLiteSession(
     dnx64_dll_path=DNX64_PATH,
     device_index=0,
     cam_index=0,
-    desired_size=(640, 480),   # change if you want
+    desired_size=(2048, 1536),  # 1536
 ) as s:
 
     status = s.get_status()
     print(status)
 
-    print("Previewing for alignment... (Ctrl+C to stop preview loop)")
-    try:
-        for _ in range(100):  # 4s delay with 100/25
-            s.show_preview(delay_ms=25)
-    except KeyboardInterrupt:
-        pass
+    #print("Previewing for alignment... (Ctrl+C to stop preview loop)")
+    #try:
+    #    for _ in range(50):  # ~2 seconds if delay_ms=30 below
+    #        s.show_preview(delay_ms=25)
+    #except KeyboardInterrupt:
+    #    pass
 
     print("Capturing image now...")
     fname = s.capture_image()
