@@ -6,7 +6,7 @@ from dinolite import DinoLiteSession, build_testtouch_image_name
 
 output_dir = Path(r"C:\Users\University of Chicag\git\April2_TrueTestTouches_Thin")
 image_name = build_testtouch_image_name(
-    "ccat350", "surface1", "90deg", "spindleB", "thick", 1
+    "testing", "noside", "noorientation", "nospindle", "thin", 1
 )
 output_path = output_dir / image_name
 
@@ -19,4 +19,5 @@ with DinoLiteSession(
 #    print("status:", s.get_status())
     result = s.capture_image(output_path)
 
-print("result:", result)
+#print("result:", result)
+print(result['image_path'], result['fovx_mm'], result['amr'])
