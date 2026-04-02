@@ -200,6 +200,8 @@ class DinoLiteSession:
         backend_candidates.append(("DEFAULT", None))
 
         for attempt in range(1, self.retries + 1):
+            print(f"[camera] Attempting to initialize Dino-Lite camera stream ({attempt}/{self.retries})")
+
             for backend_name, backend in backend_candidates:
                 cap = cv2.VideoCapture(self.cam_index) if backend is None else cv2.VideoCapture(self.cam_index, backend)
                 if not cap.isOpened():
@@ -217,15 +219,14 @@ class DinoLiteSession:
                 got_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                 got_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 print(
-                    f"[OpenCV] backend={backend_name} attempt={attempt}/{self.retries} "
-                    f"requested={self.desired_width}x{self.desired_height} got={got_w}x{got_h}"
+                    f"[camera] resolution requested={self.desired_width}x{self.desired_height} "
+                    f"got={got_w}x{got_h}"
                 )
                 return cap
 
             time.sleep(self.sleep_s)
 
         return None
-
     @staticmethod
     def _decode_config_flags(config: int) -> Dict[str, bool]:
         # Mirrors the usb_streamer bit decoding, but returns structured booleans.
