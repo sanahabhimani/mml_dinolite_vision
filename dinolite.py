@@ -1,4 +1,6 @@
 import math
+import contextlib
+import sys
 import os
 import time
 from pathlib import Path
@@ -7,6 +9,7 @@ from typing import Optional, Dict, Any, Tuple
 
 import cv2
 from DNX64 import DNX64
+
 
 DEFAULT_DNX64_DIR = Path(os.environ.get("DNX64_DIR", r"C:\Program Files\DNX64"))
 DEFAULT_DNX64_PATH = DEFAULT_DNX64_DIR / "DNX64.dll"
@@ -22,6 +25,22 @@ def build_testtouch_image_name(lenstype, lenssurfaceside, orientation, spindle, 
         f"{lenstype}_{lenssurfaceside}_{orientation}_"
         f"{spindle}_{cuttype}_testtouch{testtouch_index}{ext}"
     )
+
+
+@contextlib.contextmanager
+def suppress_output():
+    devnull = open(os.devnull, "w")
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
+    try:
+        sys.stdout = devnull
+        sys.stderr = devnull
+        yield
+    finally:
+        sys.stdout = old_stdout
+        sys.stderr = old_stderr
+        devnull.close()
+
 
 @dataclass
 class DinoLiteStatus:
@@ -172,17 +191,19 @@ class DinoLiteSession:
         dll_dir = str(Path(self.dnx64_dll_path).parent)
         os.environ["PATH"] = dll_dir + ";" + os.environ.get("PATH", "")
 
-        microscope = DNX64(self.dnx64_dll_path)
+        with suppress_output():
+            microscope = DNX64(self.dnx64_dll_path)
 
-        microscope.SetVideoDeviceIndex(self.device_index)
-        time.sleep(0.1)
+            microscope.SetVideoDeviceIndex(self.device_index)
+            time.sleep(0.1)
 
-        for method_name in ("Init", "Initialize", "OpenDevice", "Open"):
-            if hasattr(microscope, method_name):
-                getattr(microscope, method_name)()
-                break
+            for method_name in ("Init", "Initialize", "OpenDevice", "Open"):
+                if hasattr(microscope, method_name):
+                    getattr(microscope, method_name)()
+                    break
 
-        time.sleep(0.1)
+            time.sleep(0.1)
+
         return microscope
 
     def _close_sdk(self, microscope):
