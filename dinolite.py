@@ -1,11 +1,27 @@
-import importlib
 import math
+import os
 import time
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional, Dict, Any, Tuple
 
 import cv2
+from DNX64 import DNX64
 
+DEFAULT_DNX64_DIR = Path(os.environ.get("DNX64_DIR", r"C:\Program Files\DNX64"))
+DEFAULT_DNX64_PATH = DEFAULT_DNX64_DIR / "DNX64.dll"
+
+
+def get_default_dnx64_path():
+    return str(DEFAULT_DNX64_PATH)
+
+
+def build_testtouch_image_name(lenstype, lenssurfaceside, orientation, spindle, cuttype, testtouch_index,
+                               ext=".png"):
+    return (
+        f"{lenstype}_{lenssurfaceside}_{orientation}_"
+        f"{spindle}_{cuttype}_testtouch{testtouch_index}{ext}"
+    )
 
 @dataclass
 class DinoLiteStatus:
@@ -26,14 +42,17 @@ class DinoLiteSession:
 
     def __init__(
         self,
-        dnx64_dll_path: str,
-        device_index: int = 0,
-        cam_index: int = 0,
-        desired_size: Tuple[int, int] = (640, 480),
-        retries: int = 3,
-        sleep_s: float = 0.3,
+        dnx64_dll_path=None,
+        device_index=0,
+        cam_index=0,
+        desired_size=(640, 480),
+        retries=3,
+        sleep_s=0.3,
     ):
-        self.dnx64_dll_path = dnx64_dll_path
+        if dnx64_dll_path is None:
+            dnx64_dll_path = get_default_dnx64_path()
+
+        self.dnx64_dll_path = str(Path(dnx64_dll_path))
         self.device_index = device_index
         self.cam_index = cam_index
         self.desired_width, self.desired_height = desired_size
@@ -42,7 +61,6 @@ class DinoLiteSession:
 
         self._microscope = None
         self._cap = None
-
     # ---------- lifecycle ----------
     def open(self) -> None:
         """Open OpenCV stream, then initialize the DNX64 SDK."""
@@ -151,7 +169,9 @@ class DinoLiteSession:
 
     # ---------- internals ----------
     def _open_sdk(self):
-        DNX64 = getattr(importlib.import_module("DNX64"), "DNX64")
+        dll_dir = str(Path(self.dnx64_dll_path).parent)
+        os.environ["PATH"] = dll_dir + ";" + os.environ.get("PATH", "")
+
         microscope = DNX64(self.dnx64_dll_path)
 
         microscope.SetVideoDeviceIndex(self.device_index)
@@ -218,4 +238,38 @@ class DinoLiteSession:
             "LED_3seg": (config & 0x0C) == 0x08,
             "FLC": bool(config & 0x02),
             "AXI": bool(config & 0x01),
+        }
+
+    def capture_image(self, output_path):
+        output_path = str(Path(output_path))
+
+        frame = self.read_frame()
+        if frame is None:
+            raise RuntimeError("Could not capture image (no frame available).")
+
+        ok = cv2.imwrite(output_path, frame)
+        if not ok:
+            raise RuntimeError(f"Failed to write image to {output_path}")
+
+        status = self.get_status()
+
+        fps = self._cap.get(cv2.CAP_PROP_FPS)
+        fourcc = int(self._cap.get(cv2.CAP_PROP_FOURCC))
+        fourcc_str = "".join([chr((fourcc >> (8 * i)) & 0xFF) for i in range(4)])
+
+        return {
+            "image_path": output_path,
+            "image_name": Path(output_path).name,
+            "device_id": status.device_id,
+            "config_hex": status.config_hex,
+            "config_flags": status.config_flags,
+            "amr": status.amr,
+            "fovx_mm": status.fovx_mm,
+            "stream_width": status.stream_width,
+            "stream_height": status.stream_height,
+            "fps": fps,
+            "fourcc": fourcc_str,
+            "dnx64_dll_path": self.dnx64_dll_path,
+            "device_index": self.device_index,
+            "cam_index": self.cam_index,
         }
